@@ -29,7 +29,16 @@ document.getElementById("play-again").addEventListener("click", function () {
 
 ctx.canvas.width = window.innerWidth - 20;
 ctx.canvas.height = window.innerHeight - 20;
+//load images and start game
+
 //init global variables
+let background = new Asset(
+    '2k_stars.jpg',
+    0,
+    0,
+    1,
+    1
+);
 let player = new PlayerObject(
     'mainShip.png',
     canvas.width / 2,
@@ -66,16 +75,27 @@ let lightBullet = new Bullet(lightBulletSprite,
     new Audio('sounds/laser2.wav')
 );
 let enemyContainer = new EnemyContainer(["alienShip.gif", "mainShip.png"], 100, 100, new Audio('sounds/bwah.wav'));
-let background = new Asset(
-    '2k_stars.jpg',
-    0,
-    0,
-    1,
-    1
-);
-
-drawGame();
-
+window.onload = function() {
+    sessionStorage.clear()
+}
+preloadImages([
+    'images/alienShip.gif',
+    'images/blueLaser.gif',
+    'images/icon.png',
+    'images/mainShip.png',
+    'images/orangeShip.png',
+    'images/redLaser.gif',
+    'images/2k_stars.jpg'
+], function(){
+    console.log('All images were loaded');
+    let firstTime = sessionStorage.getItem("first_time");
+    if(!firstTime) {
+        // first time loaded!
+        sessionStorage.setItem("first_time","1");
+        location.reload();
+    }
+    drawGame();
+});
 
 function handleKeyboardInput() {
     if (keyMap["ArrowDown"] || keyMap['s'] || keyMap['S'])
@@ -92,8 +112,11 @@ function handleKeyboardInput() {
             fireTimer++;
         }
     }
-    if (frame % (200) == 0)
+    console.log()
+    if (frame % (200-Math.min(~~(frame/100),150)) == 0){
+        console.log(200-Math.min(~~(frame/100),150));
         enemyContainer.newEnemy(0, darkBullet, .5, 3);
+    }
 }
 
 function drawGame() {
